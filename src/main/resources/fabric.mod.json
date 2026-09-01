@@ -20,8 +20,11 @@
 		],
 		"client": [
 			"com.same.items.client.MoreUsesClient"
-		]
-	},
+		],
+        "fabric-datagen": [
+          "com.same.items.dataGenerator.MoreUsesDataGenerator"
+        ]
+    },
 	"mixins": [
 		"more-uses.mixins.json",
 		{
