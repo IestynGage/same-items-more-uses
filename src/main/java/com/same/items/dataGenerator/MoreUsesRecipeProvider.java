@@ -8,6 +8,7 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.CookingBookCategory;
@@ -37,13 +38,6 @@ public class MoreUsesRecipeProvider extends FabricRecipeProvider {
             .unlockedBy("has_powder_snow_bucket", has(Items.POWDER_SNOW_BUCKET))
             .save(this.output, "something.smelt_powder_snow_bucket");
 
-        FabricPotionBrewingBuilder.BUILD.register(builder -> {
-          builder.addMix(
-              Potions.AWKWARD,
-              Items.POISONOUS_POTATO,
-              Potions.POISON
-          );
-        });
       }
     };
   }
