@@ -22,7 +22,7 @@
 			"com.same.items.client.MoreUsesClient"
 		],
         "fabric-datagen": [
-          "com.same.items.dataGenerator.MoreUsesDataGenerator"
+          "com.same.items.datagen.MoreUsesDataGenerator"
         ]
     },
 	"mixins": [

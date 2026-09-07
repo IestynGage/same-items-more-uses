@@ -1,18 +1,17 @@
 package com.same.items.potion;
 
-import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.registry.FabricPotionBrewingBuilder;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.Potions;
 
-public class MoreUsesPotions implements ModInitializer {
+public class MoreUsesPotions {
 
-  @Override
-  public void onInitialize() {
+  public static void register() {
     FabricPotionBrewingBuilder.BUILD.register(builder -> {
       builder.addMix(
-          net.minecraft.world.item.alchemy.Potions.AWKWARD,
+          Potions.AWKWARD,
           Items.POISONOUS_POTATO,
-          net.minecraft.world.item.alchemy.Potions.POISON
+          Potions.POISON
       );
     });
   }
