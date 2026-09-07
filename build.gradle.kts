@@ -63,6 +63,10 @@ tasks.jar {
 	}
 }
 
+fabricApi {
+    configureDataGeneration()
+}
+
 // configure the maven publication
 publishing {
 	publications {
