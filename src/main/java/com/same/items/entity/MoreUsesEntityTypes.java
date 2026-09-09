@@ -1,6 +1,7 @@
 package com.same.items.entity;
 
 import com.same.items.MoreUses;
+import com.same.items.entity.throwable.MagmaCreamProjectile;
 import com.same.items.entity.throwable.SlimeProjectile;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -14,6 +15,15 @@ public class MoreUsesEntityTypes {
   public static final EntityType<SlimeProjectile> SLIME_PROJECTILE = register(
       "slime_projectile",
       EntityType.Builder.<SlimeProjectile>of(SlimeProjectile::new, MobCategory.MISC)
+          .noLootTable()
+          .sized(0.25F, 0.25F)
+          .clientTrackingRange(4)
+          .updateInterval(10)
+  );
+
+  public static final EntityType<MagmaCreamProjectile> MAGMA_CREAM_PROJECTILE = register(
+      "magma_cream_projectile",
+      EntityType.Builder.<MagmaCreamProjectile>of(MagmaCreamProjectile::new, MobCategory.MISC)
           .noLootTable()
           .sized(0.25F, 0.25F)
           .clientTrackingRange(4)

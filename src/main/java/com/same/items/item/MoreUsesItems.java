@@ -1,5 +1,6 @@
 package com.same.items.item;
 
+import com.same.items.entity.throwable.MagmaCreamProjectile;
 import com.same.items.entity.throwable.SlimeProjectile;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
@@ -25,6 +26,7 @@ public class MoreUsesItems {
 
   public static void register() {
     UseItemCallback.EVENT.register(MoreUsesItems::throwSlimeBall);
+    UseItemCallback.EVENT.register(MoreUsesItems::throwMagmaCream);
     UseBlockCallback.EVENT.register(MoreUsesItems::dyeWool);
   }
 
@@ -50,6 +52,32 @@ public class MoreUsesItems {
     }
 
     player.awardStat(Stats.ITEM_USED.get(Items.SLIME_BALL));
+    itemStack.consume(1, player);
+    return InteractionResult.SUCCESS;
+  }
+
+  private static InteractionResult throwMagmaCream(final Player player, final Level level, final InteractionHand hand) {
+    ItemStack itemStack = player.getItemInHand(hand);
+    if (!itemStack.is(Items.MAGMA_CREAM)) {
+      return InteractionResult.PASS;
+    }
+
+    level.playSound(
+        null,
+        player.getX(),
+        player.getY(),
+        player.getZ(),
+        SoundEvents.SNOWBALL_THROW,
+        SoundSource.NEUTRAL,
+        0.5F,
+        0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
+    );
+
+    if (level instanceof ServerLevel serverLevel) {
+      Projectile.spawnProjectileFromRotation(MagmaCreamProjectile::new, serverLevel, itemStack, player, 0.0F, 1.5F, 1.0F);
+    }
+
+    player.awardStat(Stats.ITEM_USED.get(Items.MAGMA_CREAM));
     itemStack.consume(1, player);
     return InteractionResult.SUCCESS;
   }
