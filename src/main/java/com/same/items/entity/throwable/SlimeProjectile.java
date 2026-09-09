@@ -54,10 +54,7 @@ public class SlimeProjectile extends ThrowableItemProjectile {
   protected void onHitEntity(final EntityHitResult hitResult) {
     super.onHitEntity(hitResult);
     Entity entity = hitResult.getEntity();
-    // Increase slime heart?
-    // Sulphie hearts also increase?
-//    int damage = entity instanceof Slime ? 3 : 0;
-//    entity.hurt(this.damageSources().thrown(this, this.getOwner()), damage);
+    entity.hurt(this.damageSources().thrown(this, this.getOwner()), 0);
   }
 
   @Override
