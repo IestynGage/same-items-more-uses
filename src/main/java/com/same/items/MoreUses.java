@@ -3,6 +3,7 @@ package com.same.items;
 import com.same.items.entity.MoreUsesEntityTypes;
 import com.same.items.item.MoreUsesItems;
 import com.same.items.potion.MoreUsesPotions;
+import com.same.items.recipe.MoreUsesRecipeSerializers;
 import net.fabricmc.api.ModInitializer;
 
 import net.minecraft.resources.Identifier;
@@ -21,6 +22,7 @@ public class MoreUses implements ModInitializer {
 		MoreUsesEntityTypes.register();
 		MoreUsesPotions.register();
 		MoreUsesItems.register();
+		MoreUsesRecipeSerializers.register();
 
 		LOGGER.info("Initialize " + MOD_ID);
 	}
