@@ -1,5 +1,6 @@
 package com.same.items;
 
+import com.same.items.block.MoreUsesBlocks;
 import com.same.items.entity.MoreUsesEntityTypes;
 import com.same.items.item.MoreUsesItems;
 import com.same.items.potion.MoreUsesPotions;
@@ -19,6 +20,7 @@ public class MoreUses implements ModInitializer {
 	@Override
 	public void onInitialize() {
 
+		MoreUsesBlocks.register();
 		MoreUsesEntityTypes.register();
 		MoreUsesPotions.register();
 		MoreUsesItems.register();

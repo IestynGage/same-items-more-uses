@@ -1,5 +1,6 @@
 package com.same.items.item;
 
+import com.same.items.block.MoreUsesBlocks;
 import com.same.items.entity.throwable.MagmaCreamProjectile;
 import com.same.items.entity.throwable.SlimeProjectile;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
@@ -17,6 +18,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,6 +30,7 @@ public class MoreUsesItems {
     UseItemCallback.EVENT.register(MoreUsesItems::throwSlimeBall);
     UseItemCallback.EVENT.register(MoreUsesItems::throwMagmaCream);
     UseBlockCallback.EVENT.register(MoreUsesItems::dyeWool);
+    UseBlockCallback.EVENT.register(MoreUsesItems::placeGunpowderTrail);
   }
 
   private static InteractionResult throwSlimeBall(final Player player, final Level level, final InteractionHand hand) {
@@ -80,6 +83,16 @@ public class MoreUsesItems {
     player.awardStat(Stats.ITEM_USED.get(Items.MAGMA_CREAM));
     itemStack.consume(1, player);
     return InteractionResult.SUCCESS;
+  }
+
+  private static InteractionResult placeGunpowderTrail(final Player player, final Level level, final InteractionHand hand, final BlockHitResult hitResult) {
+    ItemStack itemStack = player.getItemInHand(hand);
+    if (!itemStack.is(Items.GUNPOWDER)) {
+      return InteractionResult.PASS;
+    }
+
+    BlockPlaceContext context = new BlockPlaceContext(player, hand, itemStack, hitResult);
+    return MoreUsesBlocks.GUNPOWDER_TRAIL_ITEM.place(context);
   }
 
   private static InteractionResult dyeWool(final Player player, final Level level, final InteractionHand hand, final BlockHitResult hitResult) {
