@@ -9,13 +9,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -27,7 +25,7 @@ public class MoreUsesItems {
 
   public static void register() {
     UseItemCallback.EVENT.register(MoreUsesItems::throwSlimeBall);
-    UseBlockCallback.EVENT.register(MoreUsesItems::dyeWoolRed);
+    UseBlockCallback.EVENT.register(MoreUsesItems::dyeWool);
   }
 
   private static InteractionResult throwSlimeBall(final Player player, final Level level, final InteractionHand hand) {
@@ -56,15 +54,13 @@ public class MoreUsesItems {
     return InteractionResult.SUCCESS;
   }
 
-  private static InteractionResult dyeWoolRed(final Player player, final Level level, final InteractionHand hand, final BlockHitResult hitResult) {
+  private static InteractionResult dyeWool(final Player player, final Level level, final InteractionHand hand, final BlockHitResult hitResult) {
     ItemStack itemStack = player.getItemInHand(hand);
     BlockPos pos = hitResult.getBlockPos();
     BlockState state = level.getBlockState(pos);
 
-//    if (item instanceof DyeItem dyeItem) {
-//    TODO CHECK IF THIS RETURNS ERROR
     DyeColor dyeColor = itemStack.get(DataComponents.DYE);
-    if (dyeColor == null || state.is(Blocks.WOOL.pick(dyeColor))) {
+    if (dyeColor == null || state.is(Blocks.WOOL.pick(dyeColor)) ||  !Blocks.WOOL.asList().contains(state.getBlock())) {
       return InteractionResult.PASS;
     }
 
