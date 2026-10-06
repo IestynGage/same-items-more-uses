@@ -9,7 +9,15 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -20,13 +28,16 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.TntBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.RedstoneSide;
 import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -38,13 +49,21 @@ import org.jspecify.annotations.Nullable;
  * but with all power/signal transmission stripped out - it never conducts or emits a redstone
  * signal. The dark tint is applied client-side via BlockColorRegistry, reusing vanilla's redstone
  * dust textures/models unmodified.
+ *
+ * Lighting it with flint and steel sets LIT (which BlockColorRegistry tints yellow/red instead of
+ * the usual dark gray/black) and schedules a 1-tick fuse: on that tick it ignites any unlit
+ * gunpowder trail blocks it's connected to (spreading the fuse outward one block per tick) and
+ * then removes itself.
  */
 public class GunpowderTrailBlock extends Block {
+  private static final int FUSE_TICKS = 3;
+
   public static final MapCodec<GunpowderTrailBlock> CODEC = simpleCodec(GunpowderTrailBlock::new);
   public static final EnumProperty<RedstoneSide> NORTH = BlockStateProperties.NORTH_REDSTONE;
   public static final EnumProperty<RedstoneSide> EAST = BlockStateProperties.EAST_REDSTONE;
   public static final EnumProperty<RedstoneSide> SOUTH = BlockStateProperties.SOUTH_REDSTONE;
   public static final EnumProperty<RedstoneSide> WEST = BlockStateProperties.WEST_REDSTONE;
+  public static final BooleanProperty LIT = BlockStateProperties.LIT;
   public static final Map<Direction, EnumProperty<RedstoneSide>> PROPERTY_BY_DIRECTION = ImmutableMap.copyOf(
       Maps.newEnumMap(Map.of(Direction.NORTH, NORTH, Direction.EAST, EAST, Direction.SOUTH, SOUTH, Direction.WEST, WEST))
   );
@@ -61,6 +80,7 @@ public class GunpowderTrailBlock extends Block {
             .setValue(EAST, RedstoneSide.NONE)
             .setValue(SOUTH, RedstoneSide.NONE)
             .setValue(WEST, RedstoneSide.NONE)
+            .setValue(LIT, false)
     );
     this.shapes = this.makeShapes();
     this.crossState = this.defaultBlockState()
@@ -91,7 +111,7 @@ public class GunpowderTrailBlock extends Block {
       }
 
       return shape;
-    });
+    }, LIT);
   }
 
   @Override
@@ -106,7 +126,7 @@ public class GunpowderTrailBlock extends Block {
 
   private BlockState getConnectionState(final BlockGetter level, BlockState state, final BlockPos pos) {
     boolean wasDot = isDot(state);
-    state = this.getMissingConnections(level, this.defaultBlockState(), pos);
+    state = this.getMissingConnections(level, this.defaultBlockState().setValue(LIT, state.getValue(LIT)), pos);
     if (wasDot && isDot(state)) {
       return state;
     }
@@ -171,7 +191,9 @@ public class GunpowderTrailBlock extends Block {
     RedstoneSide sideConnection = this.getConnectingSide(level, pos, directionToNeighbour);
     return sideConnection.isConnected() == state.getValue(PROPERTY_BY_DIRECTION.get(directionToNeighbour)).isConnected() && !isCross(state)
         ? state.setValue(PROPERTY_BY_DIRECTION.get(directionToNeighbour), sideConnection)
-        : this.getConnectionState(level, this.crossState.setValue(PROPERTY_BY_DIRECTION.get(directionToNeighbour), sideConnection), pos);
+        : this.getConnectionState(
+            level, this.crossState.setValue(LIT, state.getValue(LIT)).setValue(PROPERTY_BY_DIRECTION.get(directionToNeighbour), sideConnection), pos
+        );
   }
 
   private static boolean isCross(final BlockState state) {
@@ -336,6 +358,70 @@ public class GunpowderTrailBlock extends Block {
 
   @Override
   protected void createBlockStateDefinition(final StateDefinition.Builder<Block, BlockState> builder) {
-    builder.add(NORTH, EAST, SOUTH, WEST);
+    builder.add(NORTH, EAST, SOUTH, WEST, LIT);
+  }
+
+  @Override
+  protected InteractionResult useItemOn(
+      final ItemStack itemStack,
+      final BlockState state,
+      final Level level,
+      final BlockPos pos,
+      final Player player,
+      final InteractionHand hand,
+      final BlockHitResult hitResult
+  ) {
+    if (!itemStack.is(Items.FLINT_AND_STEEL) || state.getValue(LIT)) {
+      return super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
+    }
+
+    if (level instanceof ServerLevel serverLevel) {
+      ignite(serverLevel, pos, state);
+    }
+
+    level.playSound(player, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F, level.getRandom().nextFloat() * 0.4F + 0.8F);
+    itemStack.hurtAndBreak(1, player, hand.asEquipmentSlot());
+    player.awardStat(Stats.ITEM_USED.get(itemStack.getItem()));
+    return InteractionResult.SUCCESS;
+  }
+
+  private static void ignite(final ServerLevel level, final BlockPos pos, final BlockState state) {
+    level.setBlock(pos, state.setValue(LIT, true), 3);
+    level.scheduleTick(pos, state.getBlock(), FUSE_TICKS);
+  }
+
+  @Override
+  protected void tick(final BlockState state, final ServerLevel level, final BlockPos pos, final RandomSource random) {
+    if (!state.getValue(LIT)) {
+      return;
+    }
+
+    for (Direction direction : Direction.Plane.HORIZONTAL) {
+      RedstoneSide side = state.getValue(PROPERTY_BY_DIRECTION.get(direction));
+      if (side == RedstoneSide.NONE) {
+        continue;
+      }
+
+      BlockPos neighborPos = side == RedstoneSide.UP ? pos.relative(direction).above() : pos.relative(direction);
+      BlockState neighborState = level.getBlockState(neighborPos);
+      if (neighborState.is(this) && !neighborState.getValue(LIT)) {
+        ignite(level, neighborPos, neighborState);
+      }
+    }
+
+    for (Direction direction : Direction.values()) {
+      BlockPos neighborPos = pos.relative(direction);
+      if (level.getBlockState(neighborPos).is(Blocks.TNT)) {
+        primeTnt(level, neighborPos);
+      }
+    }
+
+    level.removeBlock(pos, false);
+  }
+
+  private static void primeTnt(final ServerLevel level, final BlockPos pos) {
+    if (TntBlock.prime(level, pos)) {
+      level.setBlock(pos, Blocks.AIR.defaultBlockState(), 11);
+    }
   }
 }
