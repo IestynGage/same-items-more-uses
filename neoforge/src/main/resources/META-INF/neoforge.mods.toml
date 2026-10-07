@@ -1,0 +1,30 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "CC0-1.0"
+
+[[mods]]
+modId = "same_bucket_more_uses"
+version = "${version}"
+displayName = "Same Bucket More Uses"
+description = '''
+This is an example description! Tell everyone what your mod is about!
+'''
+authors = "Me!"
+logoFile = "assets/same_bucket_more_uses/icon.png"
+
+[[mixins]]
+config = "same_bucket_more_uses.mixins.json"
+
+[[dependencies.same_bucket_more_uses]]
+modId = "neoforge"
+type = "required"
+versionRange = "[26.2,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.same_bucket_more_uses]]
+modId = "minecraft"
+type = "required"
+versionRange = "[26.2,26.3)"
+ordering = "NONE"
+side = "BOTH"

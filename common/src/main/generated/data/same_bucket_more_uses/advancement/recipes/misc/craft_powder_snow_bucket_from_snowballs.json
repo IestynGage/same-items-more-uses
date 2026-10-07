@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_bucket": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:bucket"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "same_bucket_more_uses:craft_powder_snow_bucket_from_snowballs"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_bucket"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "same_bucket_more_uses:craft_powder_snow_bucket_from_snowballs"
+    ]
+  }
+}

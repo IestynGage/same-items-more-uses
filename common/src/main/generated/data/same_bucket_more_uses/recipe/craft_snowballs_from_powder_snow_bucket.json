@@ -1,0 +1,10 @@
+{
+  "type": "same_bucket_more_uses:powder_snow_bucket_remainder",
+  "ingredients": [
+    "minecraft:powder_snow_bucket"
+  ],
+  "result": {
+    "count": 8,
+    "id": "minecraft:snowball"
+  }
+}

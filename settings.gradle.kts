@@ -4,14 +4,21 @@ pluginManagement {
 			name = "Fabric"
 			url = uri("https://maven.fabricmc.net/")
 		}
+		maven {
+			name = "Architectury"
+			url = uri("https://maven.architectury.dev/")
+		}
+		maven {
+			name = "NeoForged"
+			url = uri("https://maven.neoforged.net/releases/")
+		}
 		mavenCentral()
 		gradlePluginPortal()
 	}
-
-	plugins {
-		id("net.fabricmc.fabric-loom") version providers.gradleProperty("loom_version")
-	}
 }
 
-// Should match your modid
 rootProject.name = "same-bucket-more-uses"
+
+include("common")
+include("fabric")
+include("neoforge")
