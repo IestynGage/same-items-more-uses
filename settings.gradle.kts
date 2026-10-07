@@ -14,4 +14,4 @@ pluginManagement {
 }
 
 // Should match your modid
-rootProject.name = "more-uses"
+rootProject.name = "same-bucket-more-uses"

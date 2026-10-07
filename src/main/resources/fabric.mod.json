@@ -1,8 +1,8 @@
 {
 	"schemaVersion": 1,
-	"id": "more-uses",
+	"id": "same-bucket-more-uses",
 	"version": "${version}",
-	"name": "more-uses",
+	"name": "same-bucket-more-uses",
 	"description": "This is an example description! Tell everyone what your mod is about!",
 	"authors": [
 		"Me!"
@@ -12,23 +12,20 @@
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
 	"license": "CC0-1.0",
-	"icon": "assets/more-uses/icon.png",
+	"icon": "assets/same-bucket-more-uses/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.same.items.MoreUses"
-		],
-		"client": [
-			"com.same.items.client.MoreUsesClient"
+			"com.same.bucket.SameBucketMoreUses"
 		],
         "fabric-datagen": [
-          "com.same.items.datagen.MoreUsesDataGenerator"
+          "com.same.bucket.datagen.SameBucketMoreUsesDataGenerator"
         ]
     },
 	"mixins": [
-		"more-uses.mixins.json",
+		"same-bucket-more-uses.mixins.json",
 		{
-			"config": "more-uses.client.mixins.json",
+			"config": "same-bucket-more-uses.client.mixins.json",
 			"environment": "client"
 		}
 	],
