@@ -1,4 +1,13 @@
-# same-bucket-more-uses
+# Same bucket, more uses
+
+Do you think the bucket should have more uses in MC?
+Then this is the mod for you!
+This mod now allows:
+* Powder snow buckets to be smelted into water bucket.
+* You can now craft a powder snow bucket by either:
+    * using 8 snowballs and a bucket
+    * bucket and a snow block
+* Powder snow buckets now return 8 snowballs in the crafting table.
 
 ## Setup
 
@@ -22,10 +31,3 @@ This template is available under the CC0 license. Feel free to learn from it and
 
 ## New usages 
 
-### Bucket
-
-* Powder snow buckets can now be smelted to make water bucket.
-* You can now craft a powder snow bucket by either:
-  * using 8 snowballs and a bucket
-  * bucket and a snow block
-* Powder snow buckets now return 8 snowballs in the crafting table.
